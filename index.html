@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d18">
+<title>NovaPay — Banco Virtual</title>
+<style>
+:root {
+  --bg:#080d18;
+  --panel:#111a2b;
+  --panel2:#172238;
+  --text:#f5f7ff;
+  --muted:#91a0b9;
+  --blue:#6685ff;
+  --green:#39d6a0;
+  --border:#26344c;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding-bottom:100px;
+}
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+.app { max-width:650px; margin:auto; padding:20px 17px; }
+.top { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.brand { display:flex; align-items:center; gap:10px; font-size:24px; font-weight:850; letter-spacing:-1px; }
+.logo {
+  width:43px;height:43px;border-radius:15px;
+  display:grid;place-items:center;color:white;font-weight:900;
+  background:linear-gradient(135deg,#7891ff,#7653e8);
+  box-shadow:0 6px 24px #586bff40;
+}
+.demo { font-size:11px; color:#ffd78a; border:1px solid #7c6231; padding:7px 9px; border-radius:20px; }
+.greeting { margin:28px 0 17px; }
+.greeting small,.muted { color:var(--muted); }
+h1 { font-size:25px; margin:6px 0; letter-spacing:-.7px; }
+h2 { font-size:17px; margin:0; }
+.balance {
+  padding:23px; border-radius:25px; overflow:hidden;
+  background:linear-gradient(130deg,#526ef0,#7851d7 70%,#9b58d6);
+  position:relative;
+}
+.balance:after {
+  content:""; position:absolute; width:200px;height:200px;
+  border:35px solid #ffffff12;border-radius:50%;right:-90px;top:-80px;
+}
+.balance-label { font-size:13px; color:#e0e5ff; }
+.balance-line { display:flex; align-items:center; gap:12px; margin:10px 0 17px; }
+.amount { font-size:32px; font-weight:800; letter-spacing:-1px; }
+.eye { background:#ffffff20;color:white;border:0;border-radius:10px;padding:8px; }
+.balance-foot { display:flex; justify-content:space-between; gap:10px; font-size:12px;color:#e0e5ff; }
+.actions { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:20px 0 26px; }
+.action { border:0;background:transparent;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px; }
+.action-icon { width:57px;height:57px;border-radius:19px;background:var(--panel2);display:grid;place-items:center;font-size:23px;border:1px solid var(--border); }
+.section-head { display:flex;justify-content:space-between;align-items:center;margin:25px 0 13px; }
+.link { color:#91a8ff;background:none;border:0;font-size:12px; }
+.grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.card { background:var(--panel);border:1px solid var(--border);border-radius:19px;padding:17px;min-width:0; }
+.stat-icon { font-size:21px;margin-bottom:12px; }
+.stat-label { color:var(--muted);font-size:12px; }
+.stat-value { font-size:20px;font-weight:750;margin-top:7px;overflow-wrap:anywhere; }
+.positive { color:var(--green); }
+.negative { color:#ff8296; }
+.transactions { background:var(--panel);border:1px solid var(--border);border-radius:19px;padding:4px 15px; }
+.tx { display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border); }
+.tx:last-child { border-bottom:0; }
+.tx-icon { width:43px;height:43px;border-radius:15px;background:var(--panel2);display:grid;place-items:center;font-size:19px;flex-shrink:0; }
+.tx-info { flex:1;min-width:0; }
+.tx-title { font-size:14px;font-weight:650; }
+.tx-date { font-size:11px;color:var(--muted);margin-top:5px; }
+.tx-amount { font-size:13px;font-weight:750;text-align:right; }
+.empty { text-align:center;color:var(--muted);font-size:13px;padding:25px 5px; }
+.bottom {
+  position:fixed;bottom:0;left:0;right:0;z-index:5;
+  display:flex;justify-content:center;padding:10px 8px max(13px,env(safe-area-inset-bottom));
+  background:#0b1220f2;border-top:1px solid var(--border);backdrop-filter:blur(15px);
+}
+.nav { width:min(650px,100%);display:grid;grid-template-columns:repeat(4,1fr); }
+.nav button { background:none;border:0;color:var(--muted);font-size:11px;display:flex;flex-direction:column;gap:5px;align-items:center;padding:7px; }
+.nav button span { font-size:21px; }
+.nav button.active { color:#a4b5ff; }
+.page { display:none; }
+.page.active { display:block; }
+.page-intro { margin:27px 0 20px; }
+.page-intro p { color:var(--muted);font-size:13px;line-height:1.6; }
+.primary,.secondary {
+  border:0;border-radius:13px;padding:14px 16px;font-weight:750;width:100%;
+}
+.primary { background:var(--blue);color:white; }
+.secondary { background:var(--panel2);color:white;border:1px solid var(--border); }
+.field { margin:16px 0; }
+.field label { display:block;font-size:12px;color:var(--muted);margin-bottom:8px; }
+.field input,.field select {
+  width:100%;padding:14px;border-radius:12px;
+  background:#0b1322;border:1px solid var(--border);color:white;outline:none;
+}
+.field input:focus,.field select:focus { border-color:var(--blue); }
+.notice { padding:13px;background:#20233b;border:1px solid #3b426d;border-radius:13px;color:#cbd2ff;font-size:12px;line-height:1.6;margin:15px 0; }
+.virtual-card {
+  min-height:200px;border-radius:23px;padding:23px;
+  background:linear-gradient(135deg,#293a75,#7654ca);
+  display:flex;flex-direction:column;justify-content:space-between;margin:15px 0;
+}
+.card-chip { width:40px;height:29px;border-radius:7px;background:#e4d9a2; }
+.card-number { letter-spacing:3px;font-size:17px; }
+.card-bottom { display:flex;justify-content:space-between;font-size:11px;gap:10px; }
+.modal-bg {
+  position:fixed;inset:0;z-index:10;background:#000b;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-bg.show { display:flex; }
+.modal { width:min(650px,100%);padding:24px 20px max(25px,env(safe-area-inset-bottom));background:var(--panel);border-radius:25px 25px 0 0;border:1px solid var(--border);max-height:90vh;overflow:auto; }
+.modal-head { display:flex;justify-content:space-between;align-items:center; }
+.close { background:var(--panel2);border:0;color:white;border-radius:10px;padding:8px 12px; }
+.toast { position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:20;display:none;background:#183b34;color:#b9ffe8;padding:13px 18px;border-radius:12px;font-size:13px;width:max-content;max-width:90%; }
+.toast.show { display:block; }
+footer { color:#71809a;text-align:center;font-size:10px;line-height:1.7;margin:28px 5px; }
+@media(max-width:370px) {
+ .app {padding:15px 12px;}
+ .amount {font-size:27px;}
+ .actions {gap:4px;}
+ .action-icon {width:49px;height:49px;}
+ .card {padding:13px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="logo">N</div>NovaPay</div>
+    <span class="demo">● MODO SIMULADOR</span>
+  </header>
+
+  <main>
+    <section id="home" class="page active">
+      <div class="greeting">
+        <small>Bem-vindo(a) ao NovaPay 👋</small>
+        <h1>Seu dinheiro, suas escolhas.</h1>
+      </div>
+
+      <div class="balance">
+        <div class="balance-label">Saldo disponível · fictício</div>
+        <div class="balance-line">
+          <div id="balance" class="amount">R$ 2.450,00</div>
+          <button id="eye" class="eye" aria-label="Ocultar saldo">◉</button>
+        </div>
+        <div class="balance-foot">
+          <span>Conta demonstrativa</span><span>NovaPay ✦</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="action" onclick="openModal('pix')"><span class="action-icon">↗</span>Enviar Pix</button>
+        <button class="action" onclick="openModal('deposit')"><span class="action-icon">＋</span>Adicionar</button>
+        <button class="action" onclick="showPage('cards')"><span class="action-icon">▣</span>Cartões</button>
+        <button class="action" onclick="showPage('activity')"><span class="action-icon">↕</span>Extrato</button>
+      </div>
+
+      <div class="section-head"><h2>Visão geral</h2><span class="muted" style="font-size:11px">Este mês</span></div>
+      <div class="grid">
+        <div class="card"><div class="stat-icon">↙️</div><div class="stat-label">Entradas fictícias</div><div id="income" class="stat-value positive">R$ 0,00</div></div>
+        <div class="card"><div class="stat-icon">↗️</div><div class="stat-label">Saídas fictícias</div><div id="expense" class="stat-value negative">R$ 0,00</div></div>
+      </div>
+
+      <div class="section-head"><h2>Movimentações recentes</h2><button class="link" onclick="showPage('activity')">Ver extrato →</button></div>
+      <div id="recent" class="transactions"></div>
+    </section>
+
+    <section id="activity" class="page">
+      <div class="page-intro"><h1>Extrato</h1><p>Acompanhe as movimentações criadas neste simulador.</p></div>
+      <div class="grid" style="margin-bottom:15px">
+        <div class="card"><div class="stat-label">Entradas</div><div id="income2" class="stat-value positive">R$ 0,00</div></div>
+        <div class="card"><div class="stat-label">Saídas</div><div id="expense2" class="stat-value negative">R$ 0,00</div></div>
+      </div>
+      <div id="allTransactions" class="transactions"></div>
+      <button class="secondary" style="margin-top:14px" onclick="resetDemo()">Reiniciar demonstração</button>
+    </section>
+
+    <section id="pix" class="page">
+      <div class="page-intro"><h1>Área Pix</h1><p>Simule uma transferência usando saldo fictício.</p></div>
+      <div class="notice">🔒 Simulação apenas visual. Nenhum Pix real será enviado e nenhum dado bancário será consultado.</div>
+      <form id="pixForm" class="card">
+        <div class="field"><label for="recipient">Nome fictício do destinatário</label><input id="recipient" maxlength="40" placeholder="Ex.: João Silva" required></div>
+        <div class="field"><label for="pixKey">Chave de demonstração</label><input id="pixKey" maxlength="60" placeholder="Ex.: joao@exemplo.com" required></div>
+        <div class="field"><label for="pixAmount">Valor em reais</label><input id="pixAmount" type="number" min="0.01" max="100000" step="0.01" placeholder="0,00" required></div>
+        <button class="primary" type="submit">Simular transferência</button>
+      </form>
+    </section>
+
+    <section id="cards" class="page">
+      <div class="page-intro"><h1>Meus cartões</h1><p>Cartão ilustrativo para a demonstração do NovaPay.</p></div>
+      <div class="virtual-card">
+        <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:21px">NovaPay</strong><span>VIRTUAL</span></div>
+        <div class="card-chip"></div>
+        <div class="card-number">•••• &nbsp; •••• &nbsp; •••• &nbsp; 2026</div>
+        <div class="card-bottom"><span>CLIENTE DEMONSTRAÇÃO</span><span>SIMULADO</span></div>
+      </div>
+      <div class="notice">Este cartão não possui número bancário válido, não pode ser usado em compras e não está conectado a uma instituição financeira.</div>
+      <div class="card"><h2>Cartão virtual</h2><p class="muted" style="font-size:13px;line-height:1.6">Status: demonstração<br>Compras reais: indisponíveis<br>Limite real: não existe</p></div>
+    </section>
+
+    <section id="profile" class="page">
+      <div class="page-intro"><h1>Minha conta</h1><p>Configurações do simulador NovaPay.</p></div>
+      <div class="card">
+        <div style="font-size:40px;margin-bottom:12px">👤</div>
+        <h2>Cliente demonstração</h2>
+        <p class="muted" style="font-size:13px">Conta virtual educativa</p>
+        <div class="notice">Não informe senhas, CPF, dados de cartão ou credenciais bancárias neste projeto de demonstração.</div>
+        <button class="secondary" onclick="showToast('Você está usando a versão de demonstração.')">Informações do aplicativo</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>NovaPay · Projeto demonstrativo independente.<br>Não é um banco, não guarda dinheiro e não processa pagamentos reais.</footer>
+</div>
+
+<nav class="bottom">
+  <div class="nav">
+    <button class="active" data-page="home" onclick="showPage('home')"><span>⌂</span>Início</button>
+    <button data-page="activity" onclick="showPage('activity')"><span>↕</span>Extrato</button>
+    <button data-page="cards" onclick="showPage('cards')"><span>▣</span>Cartões</button>
+    <button data-page="profile" onclick="showPage('profile')"><span>☻</span>Conta</button>
+  </div>
+</nav>
+
+<div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">Adicionar saldo</h2><button class="close" onclick="closeModal()">Fechar ✕</button></div>
+    <p id="modalDescription" class="muted" style="font-size:13px;line-height:1.6">Adicione saldo fictício à sua conta de demonstração.</p>
+    <form id="depositForm">
+      <div class="field"><label for="depositAmount">Valor em reais</label><input id="depositAmount" type="number" min="0.01" max="100000" step="0.01" placeholder="0,00" required></div>
+      <button id="modalSubmit" class="primary" type="submit">Adicionar saldo fictício</button>
+    </form>
+  </div>
+</div>
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+const INITIAL_BALANCE = 2450;
+let balance = INITIAL_BALANCE;
+let income = 0;
+let expense = 0;
+let hidden = false;
+let transactions = [
+  {title:"Saldo inicial demonstrativo",detail:"Conta simulada",amount:INITIAL_BALANCE,type:"in",icon:"✦"}
+];
+let modalMode = "deposit";
+
+const money = n => n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const el = id => document.getElementById(id);
+
+function showToast(message) {
+  const toast = el("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(()=>toast.classList.remove("show"),2600);
+}
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  el(page).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  window.scrollTo({top:0,behavior:"smooth"});
+  render();
+}
+
+function openModal(mode) {
+  modalMode = mode;
+  el("modalTitle").textContent = mode==="deposit" ? "Adicionar saldo fictício" : "Simular pagamento";
+  el("modalDescription").textContent = mode==="deposit"
+    ? "Este valor é fictício e só altera o saldo mostrado nesta demonstração."
+    : "Esta operação não envia dinheiro real.";
+  el("modalSubmit").textContent = mode==="deposit" ? "Adicionar saldo fictício" : "Confirmar simulação";
+  el("modalBg").classList.add("show");
+  el("depositAmount").value = "";
+}
+function closeModal() { el("modalBg").classList.remove("show"); }
+
+function addTransaction(title,amount,type,icon,detail) {
+  balance += type==="in" ? amount : -amount;
+  if(type==="in") income += amount; else expense += amount;
+  transactions.unshift({title,detail:detail||"Operação demonstrativa",amount,type,icon});
+  render();
+}
+
+function formatTx(t) {
+  const sign = t.type==="in" ? "+" : "−";
+  const color = t.type==="in" ? "positive" : "negative";
+  return `<div class="tx">
+    <div class="tx-icon">${t.icon}</div>
+    <div class="tx-info"><div class="tx-title">${escapeHTML(t.title)}</div>
+    <div class="tx-date">${escapeHTML(t.detail)}</div></div>
+    <div class="tx-amount ${color}">${sign} ${money(t.amount)}</div>
+  </div>`;
+}
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function render() {
+  el("balance").textContent = hidden ? "R$ ••••••" : money(balance);
+  el("income").textContent = money(income);
+  el("expense").textContent = money(expense);
+  el("income2").textContent = money(income);
+  el("expense2").textContent = money(expense);
+  el("recent").innerHTML = transactions.length ? transactions.slice(0,4).map(formatTx).join("") : '<div class="empty">Nenhuma movimentação ainda.</div>';
+  el("allTransactions").innerHTML = transactions.length ? transactions.map(formatTx).join("") : '<div class="empty">Nenhuma movimentação ainda.</div>';
+}
+el("eye").addEventListener("click",()=>{
+  hidden=!hidden;
+  el("eye").textContent=hidden?"◎":"◉";
+  render();
+});
+
+el("depositForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  const amount=Number(el("depositAmount").value);
+  if(!Number.isFinite(amount)||amount<=0||amount>100000) {
+    showToast("Digite um valor válido de até R$ 100.000.");
+    return;
+  }
+  if(modalMode==="deposit") {
+    addTransaction("Adição de saldo",amount,"in","＋","Adição fictícia");
+  } else {
+    if(amount>balance) { showToast("Saldo fictício insuficiente.");return; }
+    addTransaction("Pagamento simulado",amount,"out","↗","Pagamento fictício");
+  }
+  closeModal();
+  el("depositForm").reset();
+  showToast("Operação simulada com sucesso!");
+});
+
+el("pixForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  const recipient=el("recipient").value.trim();
+  const key=el("pixKey").value.trim();
+  const amount=Number(el("pixAmount").value);
+  if(!recipient||!key||!Number.isFinite(amount)||amount<=0||amount>100000) {
+    showToast("Confira os dados e o valor informado.");
+    return;
+  }
+  if(amount>balance) { showToast("Saldo fictício insuficiente.");return; }
+  addTransaction("Pix simulado para "+recipient,amount,"out","↗","Chave fictícia: "+key);
+  el("pixForm").reset();
+  showToast("Pix simulado! Nenhum dinheiro foi enviado.");
+  showPage("activity");
+});
+
+function resetDemo() {
+  if(!confirm("Deseja reiniciar o saldo e o extrato fictícios?")) return;
+  balance=INITIAL_BALANCE;income=0;expense=0;
+  transactions=[{title:"Saldo inicial demonstrativo",detail:"Conta simulada",amount:INITIAL_BALANCE,type:"in",icon:"✦"}];
+  hidden=false;
+  el("eye").textContent="◉";
+  render();
+  showToast("Simulador reiniciado.");
+}
+
+render();
+</script>
+</body>
+</html>
